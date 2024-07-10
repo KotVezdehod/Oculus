@@ -20,7 +20,8 @@ extern "C" OCULUS_API void tryFindPattern(
 	const std::string & imgFilePathName,
 	const std::string &ocrDataPath,
 	std::vector<std::string> &errDescr,
-	std::vector<std::string> &errLevel);
+	std::vector<std::string> &errLevel,
+	int maxThreads = 4);
 
 typedef std::unique_ptr<std::thread> UPThread;
 

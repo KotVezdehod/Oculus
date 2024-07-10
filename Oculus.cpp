@@ -186,13 +186,27 @@ void tryFindPatternThreadProc(
 	return;
 }
 
+int getActiveThreadsCount(std::vector<UPThreadDescription>* thVec) {
+	int count = 0;
+
+	for (std::vector<UPThreadDescription>::const_iterator it = thVec->cbegin(); it != thVec->cend(); std::advance(it, 1)) {
+		if (it->get()->isRunning)
+			count++;
+	}
+
+	return count;
+}
+
 void tryFindPattern(
 	const std::string inPattern,
 	bool& outResult,
 	const std::string& imgFilePathName,
 	const std::string& ocrDataPath,
 	std::vector<std::string>& errDescr,
-	std::vector<std::string>& errLevel) {
+	std::vector<std::string>& errLevel,
+	int maxThreads
+	) {
+
 
 	outResult = false;
 	errDescr.clear();
@@ -209,6 +223,11 @@ void tryFindPattern(
 			int resize = 0; */
 			for (int improve = 0; improve < 2; improve++) {
 				for (int resize = 0; resize < 2; resize++) {
+					
+					while (getActiveThreadsCount(upThrVec.get()) >= maxThreads) {
+						std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+					}
+
 					UPThreadDescription upTd = std::make_unique<ThreadDescription>();
 					UPThread upThread = std::make_unique<std::thread>(
 						tryFindPatternThreadProc

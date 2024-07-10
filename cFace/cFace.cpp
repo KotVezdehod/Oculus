@@ -48,13 +48,12 @@ int main(int argc, const char** argv)
         std::cout << "***ERROR*** " << "No pattern to find was specifyed." << std::endl;
         return -1;
     }
-    
 
     std::vector<std::string> errDescr;
     std::vector<std::string> errLevel;
     bool result = false;
 
-    tryFindPattern(patternToFind, result, imgFileName, ocrDataPath, errDescr, errLevel);
+    tryFindPattern(patternToFind, result, imgFileName, ocrDataPath, errDescr, errLevel, 4);
     std::cout << imgFileName << " status:" << result << std::endl;
 
 
