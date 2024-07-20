@@ -145,7 +145,8 @@ void tryFindPatternThreadProc(
 	tes::TessBaseAPI ocr;
 	try
 	{
-		ocr.Init(ocrDataPath.c_str(), "rus");
+	
+		ocr.Init(ocrDataPath.c_str(), "rus+eng");
 	}
 	catch (const std::exception& ex)
 	{
