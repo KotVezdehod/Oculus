@@ -1,0 +1,8 @@
+Дата: 2024.07.23 08:14:56; status: 0; Уровень: ошибка; Описание: Sqlite::checkDbStructure: database recreated; Данные: 
+Дата: 2024.07.23 08:14:56; status: 0; Уровень: ошибка; Описание: Sqlite::create: unable to execute (db_err: ; query_err_code: 1; query_err_msg: Unable to execute statement, duplicate column name: dateTimeStamp, duplicate column name: dateTimeStamp Unable to execute statement); Данные: 
+Дата: 2024.07.23 08:14:56; status: 0; Уровень: ошибка; Описание: Sqlite::create: unable to execute (db_err: ; query_err_code: 1; query_err_msg: Unable to execute statement, duplicate column name: file, duplicate column name: file Unable to execute statement); Данные: 
+Дата: 2024.07.23 08:14:56; status: 0; Уровень: ошибка; Описание: Sqlite::create: unable to execute (db_err: ; query_err_code: 1; query_err_msg: Unable to execute statement, duplicate column name: fileName, duplicate column name: fileName Unable to execute statement); Данные: 
+Дата: 2024.07.23 08:14:56; status: 0; Уровень: ошибка; Описание: Sqlite::create: unable to execute (db_err: ; query_err_code: 1; query_err_msg: Unable to execute statement, duplicate column name: pattern, duplicate column name: pattern Unable to execute statement); Данные: 
+Дата: 2024.07.23 08:14:56; status: 0; Уровень: ошибка; Описание: Sqlite::create: unable to execute (db_err: ; query_err_code: 1; query_err_msg: Unable to execute statement, duplicate column name: status, duplicate column name: status Unable to execute statement); Данные: 
+Дата: 2024.07.23 08:22:37; status: 1; Уровень: информация; Описание: Starting analysing row with id = 1...; Данные: 
+Дата: 2024.07.23 08:23:00; status: 1; Уровень: информация; Описание: Starting analysing row with id = 2...; Данные: 

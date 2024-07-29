@@ -49,12 +49,10 @@ int main(int argc, const char** argv)
         return -1;
     }
 
-    std::vector<std::string> errDescr;
-    std::vector<std::string> errLevel;
     bool result = false;
-
-    tryFindPattern(patternToFind, result, imgFileName, ocrDataPath, errDescr, errLevel, 4);
-    std::cout << imgFileName << " status:" << result << std::endl;
+    std::string strResult;
+    tryFindPattern(patternToFind, result, imgFileName, ocrDataPath, strResult, 8);
+    std::cout << strResult << std::endl;
 
 
     return result;

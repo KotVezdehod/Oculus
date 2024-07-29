@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 
+using StringVector = std::vector<std::string>;
 
 #ifdef OCULUS_EXPORTS 
 	#define OCULUS_API __declspec(dllexport)
@@ -19,8 +20,7 @@ extern "C" OCULUS_API void tryFindPattern(
 	bool& outResult, 
 	const std::string & imgFilePathName,
 	const std::string &ocrDataPath,
-	std::vector<std::string> &errDescr,
-	std::vector<std::string> &errLevel,
+	std::string &diagOut,
 	int maxThreads = 4);
 
 typedef std::unique_ptr<std::thread> UPThread;
@@ -42,15 +42,14 @@ using UPThreadDescription = std::unique_ptr<ThreadDescription>;							//нашел та
 typedef std::unique_ptr<std::vector<UPThreadDescription>> UPThreadDescriptionVector;	//это классика
 
 
-
 void tryFindPatternThreadProc(
 	ThreadDescription* pThisThreadDescr
 	, const std::string& imgFilePathName
 	, const std::string& patternToFind
 	, const std::string& ocrDataPath
 	, const int rotationDegrees
-	, std::vector<std::string>& errDescrVec
-	, std::vector<std::string>& errLevelVec
 	, int heightDivider
 	, bool tryImproveQuality
-	, bool resize);
+	, bool resize
+	, StringVector* diagVecIn
+	, int detectTopNoise);
