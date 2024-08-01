@@ -7,14 +7,26 @@
 int main()
 {
     
-    std::string imgFilePathName("C:\\C++\\Oculus\\v8_6583_3a0c.png");
-    std::string ocrDataPath("C:\\C++\\Oculus");
+    std::string imgFilePathName;
+    std::string ocrDataPath;
     std::string dbgResult;
     bool result = false;
 
+    imgFilePathName.assign("C:\\C++\\Oculus\\010824_0.jpg");
+    ocrDataPath.assign("C:\\C++\\Oculus");
+    tryFindPattern("918682", result, imgFilePathName, ocrDataPath, dbgResult, 8);
+    std::cout << imgFilePathName << " status:" << result << std::endl;
+
+    imgFilePathName.assign("C:\\C++\\Oculus\\010824_1.jpg");
+    ocrDataPath.assign("C:\\C++\\Oculus");
+    tryFindPattern("1008326", result, imgFilePathName, ocrDataPath, dbgResult, 8);
+    std::cout << imgFilePathName << " status:" << result << std::endl;
+
+    imgFilePathName.assign("C:\\C++\\Oculus\\v8_6583_3a0c.png");
+    ocrDataPath.assign("C:\\C++\\Oculus");
     tryFindPattern("2004380", result, imgFilePathName, ocrDataPath, dbgResult, 8);
-    std::cout << dbgResult << std::endl;
-    
+    std::cout << imgFilePathName << " status:" << result << std::endl;
+        
     imgFilePathName.assign("C:\\C++\\Oculus\\2.jpg");
     ocrDataPath.assign("C:\\C++\\Oculus");
     tryFindPattern("878543", result, imgFilePathName, ocrDataPath, dbgResult, 8);

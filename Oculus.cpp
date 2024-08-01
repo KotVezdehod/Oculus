@@ -2,6 +2,7 @@
 #include "Oculus.h"
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
+#include <filesystem>
 #include <regex>
 #include "opencv2/core.hpp"
 #include "opencv2/imgproc.hpp"
@@ -12,14 +13,16 @@
 //перевести на wstring
 
 namespace tes = tesseract;
+namespace fs = std::filesystem;
 
 std::mutex mute;
 using LockGuard = std::lock_guard<std::mutex>;
+static int gTest_counter = 0;
 
 void improoveBrightness(cv::Mat &matIn) {
 	cv::Mat new_image = cv::Mat::zeros(matIn.size(), matIn.type());
 
-	double alpha = 1.4; /*< Simple contrast control [1,0-3,0] */
+	double alpha = 1.4;		/*< Simple contrast control [1,0-3,0] */
 	double beta = 30;       /*< Simple brightness control [0-100] */
 
 	for (int y = 0; y < matIn.rows; y++) {
@@ -72,16 +75,17 @@ double getWholeChanBrightnessPerPoint(cv::Mat& matIn) {
 
 int blackWaterTopNoise(cv::Mat& imgIn, bool tryImproveQuality) {
 
-	UINT probeRect = 40;
-	double sensitivityPerChennel = 8;
+	UINT probeRect = 35;
+	double sensitivityPerChennel = 0.5;
 	double wholeSensitivity = sensitivityPerChennel * static_cast<double>(imgIn.channels());
-
-	double brMid = getWholeChanBrightnessPerPoint(imgIn);
-
+		
 	UINT imgWidth = imgIn.size().width;
 	UINT imgHeight = imgIn.size().height;
 	UINT x_mid = imgWidth / 2;
 	UINT y_mid = imgHeight / 2;
+
+	cv::Mat tmp(imgIn, cv::Rect(x_mid-(probeRect/2), y_mid, x_mid + (probeRect / 2), y_mid));
+	double brMid = getWholeChanBrightnessPerPoint(tmp);
 
 	UINT ySheetStart = 0;
 
@@ -138,6 +142,11 @@ void tryFindPatternThreadProc(
 	,StringVector* diagVecIn
 	,int detectTopNoise) {
 
+	std::unique_ptr<LockGuard> lg = std::make_unique<LockGuard>(mute);
+	gTest_counter++;
+	int locCounter = gTest_counter;
+	lg.reset();
+
 	int maxSize = 1200;
 	int baseImgSz = 1080;
 	//int imgSz = 1024;
@@ -164,6 +173,12 @@ void tryFindPatternThreadProc(
 			return;
 		}
 		
+		if (rotationDegrees) {
+			cv::Point2f pc(static_cast<float>(inpImg.cols) / 2, static_cast<float>(inpImg.rows) / 2);
+			cv::Mat r = cv::getRotationMatrix2D(pc, rotationDegrees, 1.0);
+			cv::warpAffine(inpImg, inpImg, r, cv::Size(inpImg.size().width, inpImg.size().height));
+		}
+
 		int bwEnd = 0;
 		if (detectTopNoise > 0) {
 			bwEnd = blackWaterTopNoise(inpImg, true);
@@ -209,6 +224,12 @@ void tryFindPatternThreadProc(
 			return;
 		}
 		
+		if (rotationDegrees) {
+			cv::Point2f pc(static_cast<float>(inpImg.cols) / 2, static_cast<float>(inpImg.rows) / 2);
+			cv::Mat r = cv::getRotationMatrix2D(pc, rotationDegrees, 1.0);
+			cv::warpAffine(inpImg, inpImg, r, cv::Size(inpImg.size().width, inpImg.size().height));
+		}
+
 		int bwEnd = 0;
 		if (detectTopNoise > 0) {
 			bwEnd = blackWaterTopNoise(inpImg, false);
@@ -251,15 +272,20 @@ void tryFindPatternThreadProc(
 		pThisThreadDescr->isRunning = false;
 		return;
 	}
-	if (rotationDegrees) {
-		cv::Point2f pc(static_cast<float>(inpImg.cols) / 2, static_cast<float>(inpImg.rows) / 2);
-		cv::Mat r = cv::getRotationMatrix2D(pc, rotationDegrees, 1.0);
-		cv::warpAffine(inpImg, inpImg, r, cv::Size(inpImg.size().width, inpImg.size().height));
-	}
 
-	/*cv::imshow("1", inpImg);
-	cv::waitKey();
-	cv::destroyWindow("1");*/
+	inpImg = cv::Mat(inpImg, cv::Rect(0, 0, inpImg.size().width, inpImg.size().height / heightDivider));
+	
+	/*fs::path p_test("C:\\C++\\Oculus\\testOut\\");
+	p_test.append(std::to_string(locCounter));
+		
+	try{
+		cv::imwrite(p_test.string()+".jpg", inpImg);
+	}
+	catch (const std::exception& ex){
+		std::cout << ex.what();
+	}*/
+	
+	
 	
 	ocr.SetImage(static_cast<uchar*>(inpImg.data), inpImg.size().width, inpImg.size().height/heightDivider, inpImg.channels(), static_cast<int>(inpImg.step1()));
 	std::unique_ptr<char> tOut(ocr.GetUTF8Text());
@@ -327,9 +353,10 @@ void tryFindPattern(
 		for (int divider = 1; divider < 11; divider++) {
 
 			for (int improve = 0; improve < 2; improve++) {
-				for (detectTopNoise = 0; detectTopNoise != 1; detectTopNoise++) {
+				for (detectTopNoise = 0; detectTopNoise < 2 ; detectTopNoise++) {
 					while (getActiveThreadsCount(upThrVec.get()) >= maxThreads) {
 						std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+						std::cout << "Wait for threads finish..." << std::endl;
 					}
 
 					for (std::vector<UPThreadDescription>::const_iterator it0 = upThrVec->cbegin(); it0 != upThrVec->cend(); std::advance(it0, 1)) {
